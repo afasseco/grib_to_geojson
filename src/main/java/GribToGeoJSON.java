@@ -1,3 +1,4 @@
+import mil.nga.sf.geojson.*;
 import org.apache.commons.lang3.tuple.Pair;
 import ucar.nc2.grib.GdsHorizCoordSys;
 import ucar.nc2.grib.grib1.*;
@@ -84,46 +85,25 @@ public class GribToGeoJSON {
         raf.close();
 
         //Now build output from the list of points
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(geoJsonFile))) {
-            bufferedWriter.write("{\n" +
-                                     "  \"type\": \"FeatureCollection\",\n" +
-                                     "  \"features\": [");
-            boolean isFirst = true;
+        try (FileWriter fileWriter = new FileWriter(geoJsonFile)) {
+            FeatureCollection featureCollection = new FeatureCollection();
             for (HashMap<String, Object> point : points) {
                 boolean shouldInclude = isInbbox((Double) point.get("lon"), (Double) point.get("lat"));
                 if (shouldInclude) {
-                    if (!isFirst) {
-                        bufferedWriter.write(",");
-                    }
-                    isFirst = false;
-
-                    bufferedWriter.write("{\n" +
-                            "      \"geometry\": {\n" +
-                            "        \"coordinates\": [\n" +
-                            "          " + point.get("lon").toString() + ",\n" +
-                            "          " + point.get("lat").toString() + "\n" +
-                            "        ],\n" +
-                            "        \"type\": \"Point\"\n" +
-                            "      },\n" +
-                            "      \"type\": \"Feature\",\n" +
-                            "    \"properties\":{");
+                    Feature feature = new Feature();
+                    feature.setGeometry(new Point(new Position((Double) point.get("lon"), (Double) point.get("lat"))));
+                    featureCollection.addFeature(feature);
 
                     //No longer needed - otherwise these would become properties as well
                     point.remove("lon");
                     point.remove("lat");
 
-                    //Write out rest of hashmap as properties
-                    List<String> properties = point.entrySet().stream().map(property -> "\"" + property.getKey() + "\"" + ":" + "" + property.getValue()).collect(Collectors.toList());
-                    bufferedWriter.write(String.join(",", properties));
-                    bufferedWriter.write(
-                            "    }\n" +
-                                "  }\n");
+                    //Use rest of hashmap as properties
+                    feature.setProperties(point);
                 }
             }
-            bufferedWriter.write("  ]\n" +
-                                     "}");
+            fileWriter.write(FeatureConverter.toStringValue(featureCollection));
         }
-
     }
 
     // Function to do a quick conversion from the format that the local ec codes are in to the format that ucar grib code understands
