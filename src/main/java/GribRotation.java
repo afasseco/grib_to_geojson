@@ -2,7 +2,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class GribRotation {
     //Rotation code converted to Java from: https://confluence.govcloud.dk/pages/viewpage.action?pageId=76153193
-    static Pair<Double, Double> getLonLat(double rot_lon, double rot_lat, float southpole_lon, float southpole_lat) {
+    static Pair<Double, Double> getRegularLonLat(double rot_lon, double rot_lat, float southpole_lon, float southpole_lat) {
         double to_rad = Math.PI / 180.0;
         double to_deg = 1.0 / to_rad;
         double sin_y_cen = Math.sin(to_rad * (southpole_lat + 90.0));
@@ -27,7 +27,7 @@ public class GribRotation {
         if (sin_lon_rad < 0.0) lon_rad = -lon_rad;
 
         double reg_lon = to_deg * lon_rad + southpole_lon;
-        Pair<Double, Double> regLonLat = Pair.of(reg_lon, reg_lat);
-        return regLonLat;
+        Pair<Double, Double> regularLonLat = Pair.of(reg_lon, reg_lat);
+        return regularLonLat;
     }
 }

@@ -71,7 +71,7 @@ public class GribToGeoJSON {
                     } else { //Does not have element yet, create and save it
                         point = new HashMap<>();
                         double lo = gdsHorizCoordSys.startx + x * gdsHorizCoordSys.dx;
-                        Pair<Double, Double> southPoleLat = GribRotation.getLonLat(lo, la, lonpole, latpole); //Rotate point to correct coordinates
+                        Pair<Double, Double> southPoleLat = GribRotation.getRegularLonLat(lo, la, lonpole, latpole); //Rotate point to correct coordinates
                         point.put("lon", southPoleLat.getLeft()); //Store coordinates
                         point.put("lat", southPoleLat.getRight());
                         points.add(elementNumber, point);
